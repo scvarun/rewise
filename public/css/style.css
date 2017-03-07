@@ -1,0 +1,9 @@
+.rating {
+	overflow: hidden;
+	display: inline-block;
+	position: absolute;
+}
+
+.rating:before {
+	content: "11111";
+}
