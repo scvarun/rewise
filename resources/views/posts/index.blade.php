@@ -23,19 +23,13 @@
 
 							<h3><a href="/posts/{{ $post->id }}">{{ $post->title }}</a></h3>
 
-							<?php $categories = $post->getCategories(); ?>
-
-							<small>
-								@foreach($categories as $category)
-									{{ App\Category::where('slug',$category)->first()->title }}
-								@endforeach
-							</small>
-
 						</li>
 
 					@endforeach
 
 				</ul>
+
+        {{ $posts->links() }}
 
 			</div><!-- /.panel-->
 

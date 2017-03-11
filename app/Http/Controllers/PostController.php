@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Rewise\Repository\PostRepo;
+
 use App\Post;
 use App\Category;
 use App\User;
@@ -62,7 +64,9 @@ class PostController extends Controller
 	}
 
 	public function index() {
-		$posts = Auth::user()->posts->all();
+    $posts = new PostRepo();
+    $posts->setPagination(5);
+    $posts = $posts->index();
 		return view('posts.index',compact('posts'));
 	}
 

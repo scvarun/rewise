@@ -41,12 +41,7 @@ class HomeController extends Controller
 				'quantity' => 'required',
         'duration' => 'required'
 	    ]);
-
-			$sche = new Schedule();
-			$sche->user_id = Auth::user()->id;
-			$sche->quantity = $req->quantity;
-			$sche->duration = strtolower($req->duration);
-			$sche->save();
+      Auth::user()->addSchedule($quantity, $duration);
 			$req->session()->flash(	'alert-success', 'Schedule added successfully!');
 			return back();
 		}

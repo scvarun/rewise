@@ -34,4 +34,12 @@ class User extends Authenticatable
 		public function schedules() {
 			return $this->hasMany(Schedule::class);
 		}
+
+    public function addSchedule($quantity, $duration) {
+			$sche = new Schedule();
+			$sche->user_id = $this->id;
+			$sche->quantity = $quantity;
+			$sche->duration = strtolower($duration);
+			$sche->save();
+    }
 }
