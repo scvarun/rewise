@@ -21,6 +21,11 @@ class CommentsController extends Controller
         'description' => 'required'
     ]);
 
+    $arr = array(
+      'post' => $post,
+      'req' => $req
+    );
+
 		$comment = new Comment();
 		$comment->post_id = $post->id;
 		$comment->title = $req->title;

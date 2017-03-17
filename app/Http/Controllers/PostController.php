@@ -55,17 +55,12 @@ class PostController extends Controller
 				'publish_date' => 'date|required'
     ]);
 
-		$post = new Post;
-		$date = new Datetime($req->publish_date);
-		$post = $this->addEditPost($post, $req, Auth::user(), $date);
-		$post->save();
 		$req->session()->flash(	'alert-success', 'Post was successful added!');
 		return back();
 	}
 
 	public function index() {
     $posts = new PostRepo();
-    $posts->setPagination(5);
     $posts = $posts->index();
 		return view('posts.index',compact('posts'));
 	}
