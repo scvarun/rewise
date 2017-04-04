@@ -56,10 +56,7 @@ class PostController extends Controller
 	}
 
 	public function saveEditPostPage(Post $post, Request $req) {
-		$user = User::find($post->user_id);
-		$date = new Datetime($post->publish_date);
-		$post = $this->addEditPost($post, $req, $user, $date);
-		$post->save();
+    $this->postRepo->edit($post, $req);
 		$req->session()->flash(	'alert-success', 'Post updated successfully!');
 		return back();
 	}

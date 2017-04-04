@@ -11,7 +11,7 @@ abstract class AbstractRepository {
   }
 
   public function index() {
-    return $this->model::paginate($this->paginateNo);
+    return $this->model::orderBy('created_at', 'desc')->paginate($this->paginateNo);
   }
 
   public function setPagination($pagination) {

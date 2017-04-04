@@ -22,6 +22,15 @@ class PostRepo extends AbstractRepository {
 		$post->save();
   }
 
+	public function edit(Post $post, Request $req) {
+		$user = User::find($post->user_id);
+		$date = new Datetime($post->publish_date);
+		$post = $this->addEditPost($post, $req, $user, $date);
+		$post->save();
+		$req->session()->flash(	'alert-success', 'Post updated successfully!');
+		return back();
+	}
+
 	public function addEditPost(Post $post, Request $req, User $user, Datetime $date) {
 		$cats = "";
 		for( $i = 0; $i <  sizeof($req->category); $i++ ) {
