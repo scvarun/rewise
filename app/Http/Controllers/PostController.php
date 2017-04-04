@@ -14,37 +14,14 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+  private $postRepo;
+
+  public function __construct() {
+    $this->postRepo = new PostRepo();
+  }
+
 	public function getPost(Post $post) {
 		return view('posts.single',compact('post'));
-	}
-
-	public function addEditPost(Post $post, Request $req, User $user, Datetime $date) {
-		$cats = "";
-		for( $i = 0; $i <  sizeof($req->category); $i++ ) {
-			$category = Category::where( 'slug', Utils::underscore($req->category[$i]) )->first();
-			if ( sizeof( $category ) == 0 ) {
-				$category = new Category;
-				$category->title = $req->category[$i];
-				$category->slug = Utils::underscore($req->category[$i]);
-				$category->save();
-			}
-			else if ( sizeof ( $category ) != 0 && $category->title != $req->category[$i] ) {
-				$category = new Category;
-				$category->title = $req->category[$i];
-				$no = sizeof( Category::where('slug', 'like', Utils::underscore($req->category) . '%' ) );
-				$category->slug = Utils::underscore($req->category[$i]) . '_' . $no;
-				$category->save();
-			}
-			$cats = $cats . $category->slug;
-			if ( $i == sizeof( $req->category ) - 1 ) $cats = $cats . '';
-			else $cats = $cats . ',';
-		}
-		$post->title = $req->title;
-		$post->category = $cats;
-		$post->user_id = $user->id;
-		$post->publish_date = $date;
-		$post->description = $req->description;
-		return $post;
 	}
 
 	public function addPost(Request $req) {
@@ -54,7 +31,7 @@ class PostController extends Controller
         'description' => 'required',
 				'publish_date' => 'date|required'
     ]);
-
+    $this->postRepo->add($req,Auth::user());
 		$req->session()->flash(	'alert-success', 'Post was successful added!');
 		return back();
 	}

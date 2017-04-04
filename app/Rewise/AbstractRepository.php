@@ -18,5 +18,4 @@ abstract class AbstractRepository {
     $this->paginateNo = $pagination;
   }
 
-  abstract public function add(Array $arr);
 }
