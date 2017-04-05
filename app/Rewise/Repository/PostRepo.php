@@ -8,11 +8,20 @@ use App\User;
 use App\Category;
 use Datetime;
 use App\Utils;
+use Exception;
 use Illuminate\Http\Request;
 
 class PostRepo extends AbstractRepository {
+
   public function __construct() {
     $this->model = Post::class; 
+  }
+
+  public function get( Post $post , User $user) {
+    if($post->user_id == $user->id) 
+      return $post;
+    else
+      throw new Exception('You are not authorized to view this post');
   }
 
   public function add( Request $req, User $user ) {
@@ -27,8 +36,18 @@ class PostRepo extends AbstractRepository {
 		$date = new Datetime($post->publish_date);
 		$post = $this->addEditPost($post, $req, $user, $date);
 		$post->save();
-		$req->session()->flash(	'alert-success', 'Post updated successfully!');
-		return back();
+	}
+
+	public function delete($id, Request $req, User $user) {
+		$post = Post::find($id);
+		if( $user->id == $post->user_id ) {
+      $title = $post->title;
+			$post->delete();
+      return $title;
+		}
+    else {
+      throw new Exception('You are not authorized to delete');
+    }
 	}
 
 	public function addEditPost(Post $post, Request $req, User $user, Datetime $date) {

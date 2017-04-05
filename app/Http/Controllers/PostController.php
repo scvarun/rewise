@@ -10,6 +10,7 @@ use App\User;
 use Auth;
 use App\Utils;
 use Datetime;
+use Exception;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -21,7 +22,13 @@ class PostController extends Controller
   }
 
 	public function getPost(Post $post) {
-		return view('posts.single',compact('post'));
+    try {
+      $post = $this->postRepo->get($post, Auth::user());
+      return view('posts.single',compact('post'));
+    }
+    catch(Exception $e) {
+      return view('errors.403', [ 'message' => $e->getMessage() ]);
+    }
 	}
 
 	public function addPost(Request $req) {
@@ -37,8 +44,7 @@ class PostController extends Controller
 	}
 
 	public function index() {
-    $posts = new PostRepo();
-    $posts = $posts->index();
+    $posts = $this->postRepo->indexByUser(Auth::user());
 		return view('posts.index',compact('posts'));
 	}
 
@@ -62,13 +68,14 @@ class PostController extends Controller
 	}
 
 	public function deletePost($id, Request $req) {
-		$post = Post::find($id);
-		if( Auth::user()->id == $post->user_id ) {
-			$req->session()->flash(	'alert-success', '"' . $post->title .  '" deleted successfully!');
-			$post->delete();
+    try {
+      $title = $this->postRepo->delete($id,$req, Auth::user());
+			$req->session()->flash(	'alert-success', '"' . $title .  '" deleted successfully!');
 			return redirect('/posts');
-		}
-		$req->session()->flash(	'alert-success', "Post couldn't be deleted");
-		return back();
+    }
+    catch(Exception $e) {
+      $req->session()->flash(	'alert-success', $e->getMessage());
+      return back();
+    }
 	}
 }
