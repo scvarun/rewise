@@ -6,52 +6,38 @@ use Illuminate\Http\Request;
 use App\Post;
 use App\Comment;
 use Auth;
+use App\Rewise\Repository\CommentRepo;
 
 class CommentsController extends Controller
 {
+  private $commentRepo;
+
+  public function __construct() {
+    $this->commentRepo = new CommentRepo();
+  }
 
 	public function addCommentPage( Post $post ) {
 		return view('comments.add')->with('post',$post);
 	}
 
 	public function addComment( Post $post, Request $req) {
-
 		$this->validate($req, [
         'title' => 'required|max:255|min:3',
         'description' => 'required'
     ]);
-
-    $arr = array(
-      'post' => $post,
-      'req' => $req
-    );
-
-		$comment = new Comment();
-		$comment->post_id = $post->id;
-		$comment->title = $req->title;
-		$comment->description = $req->description;
-		$comment->rating = $req->rating;
-		$comment->save();
-
+    $this->commentRepo->add($post, $req);
 		$req->session()->flash(	'alert-success', 'Comment added successfully!');
 		return redirect("posts/$post->id");
 	}
 
 	public function editComment( Post $post, Comment $comment, Request $req) {
-
 		$this->validate($req, [
 				'title' => 'required|max:255|min:3',
 				'description' => 'required'
 		]);
-
-		$comment->title = $req->title;
-		$comment->description = $req->description;
-		$comment->rating = $req->rating;
-		$comment->save();
-
+    $this->commentRepo->edit($comment, $req);
 		$req->session()->flash(	'alert-success', 'Comment Updated successfully!');
 		return redirect("posts/$post->id");
-
 	}
 
 	public function editCommentPage( Post $post, Comment $comment ) {
@@ -59,11 +45,13 @@ class CommentsController extends Controller
 	}
 
 	public function deleteComment(Post $post, Comment $comment, Request $req) {
-		if( $post->user_id == Auth::user()->id ) {
-			$comment->delete();
-		}
-		$req->session()->flash(	'alert-success', 'Comment deleted successfully!');
-		return back();
+    try {
+      $this->commentRepo->delete($post,$comment,Auth::user());
+      $req->session()->flash(	'alert-success', 'Comment deleted successfully!');
+      return back();
+    }
+    catch(Exception $e) {
+      return view('errors.403', [ 'message' => $e->getMessage() ]);
+    }
 	}
-
 }
