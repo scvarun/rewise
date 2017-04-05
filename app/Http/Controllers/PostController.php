@@ -54,11 +54,17 @@ class PostController extends Controller
 	}
 
 	public function getEditPostPage(Post $post) {
-		$categories = Category::all();
-		return view('posts.edit')->with([
-			'categories' => $categories,
-			'post' => $post
-		]);
+    try {
+      $post = $this->postRepo->get($post, Auth::user());
+      $categories = Category::all();
+      return view('posts.edit')->with([
+        'categories' => $categories,
+        'post' => $post
+      ]);
+    }
+    catch(Exception $e) {
+      return view('errors.403', [ 'message' => $e->getMessage() ]);
+    }
 	}
 
 	public function saveEditPostPage(Post $post, Request $req) {
